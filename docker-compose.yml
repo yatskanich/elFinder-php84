@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: elfinder_php_cli
-    image: elfinder_php84
+    image: elfinder:php84
     working_dir: /app
     volumes:
       - ./:/app
