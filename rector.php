@@ -11,6 +11,6 @@ return RectorConfig::configure()
     ])
     ->withPhpSets(php84: true)
     ->withPhpVersion(PhpVersion::PHP_84)
-    ->withTypeCoverageLevel(1)
-    ->withDeadCodeLevel(1)
-    ->withCodeQualityLevel(1);
+    ->withTypeCoverageLevel(5)
+    ->withDeadCodeLevel(5)
+    ->withCodeQualityLevel(5);

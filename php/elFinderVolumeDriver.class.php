@@ -1191,10 +1191,10 @@ abstract class elFinderVolumeDriver
 
         // default file attribute
         $this->defaults = [
-            'read' => isset($this->options['defaults']['read']) ? !!$this->options['defaults']['read'] : true,
-            'write' => isset($this->options['defaults']['write']) ? !!$this->options['defaults']['write'] : true,
-            'locked' => isset($this->options['defaults']['locked']) ? !!$this->options['defaults']['locked'] : false,
-            'hidden' => isset($this->options['defaults']['hidden']) ? !!$this->options['defaults']['hidden'] : false
+            'read' => isset($this->options['defaults']['read']) ? (bool)$this->options['defaults']['read'] : true,
+            'write' => isset($this->options['defaults']['write']) ? (bool)$this->options['defaults']['write'] : true,
+            'locked' => isset($this->options['defaults']['locked']) ? (bool)$this->options['defaults']['locked'] : false,
+            'hidden' => isset($this->options['defaults']['hidden']) ? (bool)$this->options['defaults']['hidden'] : false
         ];
 
         // root attributes
@@ -1853,7 +1853,7 @@ abstract class elFinderVolumeDriver
      **/
     public function copyFromAllowed()
     {
-        return !!$this->options['copyFrom'];
+        return (bool)$this->options['copyFrom'];
     }
 
     /**
@@ -4446,7 +4446,7 @@ abstract class elFinderVolumeDriver
         if ($this->access) {
             $perm = call_user_func($this->access, $name, $path, $this->options['accessControlData'], $this, $isDir, $relpath);
             if ($perm !== null) {
-                return !!$perm;
+                return (bool)$perm;
             }
         }
 
@@ -4457,7 +4457,7 @@ abstract class elFinderVolumeDriver
             }
         }
 
-        return $perm === null ? (is_null($val) ? $this->defaults[$name] : $val) : !!$perm;
+        return $perm === null ? (is_null($val) ? $this->defaults[$name] : $val) : (bool)$perm;
     }
 
     /**
@@ -4660,8 +4660,10 @@ abstract class elFinderVolumeDriver
             }
         }
 
-        $stat['read'] = intval($this->attr($path, 'read', isset($stat['read']) ? !!$stat['read'] : null, $isDir));
-        $stat['write'] = intval($this->attr($path, 'write', isset($stat['write']) ? !!$stat['write'] : null, $isDir));
+        $stat['read'] = intval($this->attr($path, 'read', isset($stat['read']) ? (bool)$stat['read'] : null, $isDir));
+        $stat['write'] = intval(
+            $this->attr($path, 'write', isset($stat['write']) ? (bool)$stat['write'] : null, $isDir)
+        );
         if ($root) {
             $stat['locked'] = 1;
             if ($this->options['type'] !== '') {
@@ -4675,7 +4677,7 @@ abstract class elFinderVolumeDriver
                     $stat['locked'] = true;
                 }
             }
-            if ($this->attr($path, 'locked', isset($stat['locked']) ? !!$stat['locked'] : null, $isDir)) {
+            if ($this->attr($path, 'locked', isset($stat['locked']) ? (bool)$stat['locked'] : null, $isDir)) {
                 $stat['locked'] = 1;
             } else {
                 unset($stat['locked']);
@@ -4684,7 +4686,7 @@ abstract class elFinderVolumeDriver
 
         if ($root) {
             unset($stat['hidden']);
-        } elseif ($this->attr($path, 'hidden', isset($stat['hidden']) ? !!$stat['hidden'] : null, $isDir)
+        } elseif ($this->attr($path, 'hidden', isset($stat['hidden']) ? (bool)$stat['hidden'] : null, $isDir)
             || !$this->mimeAccepted($stat['mime'])) {
             $stat['hidden'] = 1;
         } else {

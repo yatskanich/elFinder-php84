@@ -606,7 +606,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver
                 $fstat = stat($path);
                 $uid = $fstat['uid'];
                 $gid = $fstat['gid'];
-                $stat['perm'] = substr((string)decoct($fstat['mode']), -4);
+                $stat['perm'] = substr(decoct($fstat['mode']), -4);
                 $stat = array_merge($stat, $this->getOwnerStat($uid, $gid));
             }
         }
@@ -860,7 +860,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver
                     if ($this->statOwner && !$linkreadable) {
                         $uid = $file->getOwner();
                         $gid = $file->getGroup();
-                        $stat['perm'] = substr((string)decoct($file->getPerms()), -4);
+                        $stat['perm'] = substr(decoct($file->getPerms()), -4);
                         $stat = array_merge($stat, $this->getOwnerStat($uid, $gid));
                     }
 

@@ -156,7 +156,7 @@ class elFinderConnector
             }
         }
 
-        $args['debug'] = isset($src['debug']) ? !!$src['debug'] : false;
+        $args['debug'] = isset($src['debug']) ? (bool)$src['debug'] : false;
 
         $args = $this->input_filter($args);
         if ($hasFiles) {
