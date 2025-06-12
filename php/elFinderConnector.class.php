@@ -8,18 +8,11 @@
 class elFinderConnector
 {
     /**
-     * elFinder instance
-     *
-     * @var elFinder
-     **/
-    protected $elFinder;
-
-    /**
      * Options
      *
      * @var array
      **/
-    protected $options = array();
+    protected $options = [];
 
     /**
      * Must be use output($data) $data['header']
@@ -49,13 +42,17 @@ class elFinderConnector
      * @param      $elFinder
      * @param bool $debug
      *
+     * @param \elFinder $elFinder
      * @author Dmitry (dio) Levashov
      */
-    public function __construct($elFinder, $debug = false)
-    {
-
-        $this->elFinder = $elFinder;
-        $this->reqMethod = strtoupper($_SERVER["REQUEST_METHOD"]);
+    public function __construct(
+        /**
+         * elFinder instance
+         **/
+        protected $elFinder,
+        $debug = false
+    ) {
+        $this->reqMethod = strtoupper((string)$_SERVER["REQUEST_METHOD"]);
         if ($debug) {
             self::$contentType = 'Content-Type: text/plain; charset=utf-8';
         }
@@ -77,23 +74,23 @@ class elFinderConnector
             // for max_input_vars and supports IE XDomainRequest()
             $parts = explode('&', $rawPostData);
             if (!$src || $maxInputVars < count($parts)) {
-                $src = array();
+                $src = [];
                 foreach ($parts as $part) {
-                    list($key, $value) = array_pad(explode('=', $part), 2, '');
-                    $key = rawurldecode($key);
+                    [$key, $value] = array_pad(explode('=', $part), 2, '');
+                    $key = rawurldecode((string)$key);
                     if (preg_match('/^(.+?)\[([^\[\]]*)\]$/', $key, $m)) {
                         $key = $m[1];
                         $idx = $m[2];
                         if (!isset($src[$key])) {
-                            $src[$key] = array();
+                            $src[$key] = [];
                         }
                         if ($idx) {
-                            $src[$key][$idx] = rawurldecode($value);
+                            $src[$key][$idx] = rawurldecode((string)$value);
                         } else {
-                            $src[$key][] = rawurldecode($value);
+                            $src[$key][] = rawurldecode((string)$value);
                         }
                     } else {
-                        $src[$key] = rawurldecode($value);
+                        $src[$key] = rawurldecode((string)$value);
                     }
                 }
                 $_POST = $this->input_filter($src);
@@ -102,29 +99,39 @@ class elFinderConnector
         }
 
         if (isset($src['targets']) && $this->elFinder->maxTargets && count($src['targets']) > $this->elFinder->maxTargets) {
-            $this->output(array('error' => $this->elFinder->error(elFinder::ERROR_MAX_TARGTES)));
+            $this->output(['error' => $this->elFinder->error(elFinder::ERROR_MAX_TARGTES)]);
         }
 
-        $cmd = isset($src['cmd']) ? $src['cmd'] : '';
-        $args = array();
+        $cmd = $src['cmd'] ?? '';
+        $args = [];
 
         if (!function_exists('json_encode')) {
             $error = $this->elFinder->error(elFinder::ERROR_CONF, elFinder::ERROR_CONF_NO_JSON);
-            $this->output(array('error' => '{"error":["' . implode('","', $error) . '"]}', 'raw' => true));
+            $this->output(['error' => '{"error":["' . implode('","', $error) . '"]}', 'raw' => true]);
         }
 
         if (!$this->elFinder->loaded()) {
-            $this->output(array('error' => $this->elFinder->error(elFinder::ERROR_CONF, elFinder::ERROR_CONF_NO_VOL), 'debug' => $this->elFinder->mountErrors));
+            $this->output(
+                [
+                    'error' => $this->elFinder->error(elFinder::ERROR_CONF, elFinder::ERROR_CONF_NO_VOL),
+                    'debug' => $this->elFinder->mountErrors
+                ]
+            );
         }
 
         // telepat_mode: on
         if (!$cmd && $isPost) {
-            $this->output(array('error' => $this->elFinder->error(elFinder::ERROR_UPLOAD, elFinder::ERROR_UPLOAD_TOTAL_SIZE), 'header' => 'Content-Type: text/html'));
+            $this->output(
+                [
+                    'error' => $this->elFinder->error(elFinder::ERROR_UPLOAD, elFinder::ERROR_UPLOAD_TOTAL_SIZE),
+                    'header' => 'Content-Type: text/html'
+                ]
+            );
         }
         // telepat_mode: off
 
         if (!$this->elFinder->commandExists($cmd)) {
-            $this->output(array('error' => $this->elFinder->error(elFinder::ERROR_UNKNOWN_CMD)));
+            $this->output(['error' => $this->elFinder->error(elFinder::ERROR_UNKNOWN_CMD)]);
         }
 
         // collect required arguments to exec command
@@ -134,16 +141,16 @@ class elFinderConnector
                 if (isset($_FILES)) {
                     $hasFiles = true;
                 } elseif ($req) {
-                    $this->output(array('error' => $this->elFinder->error(elFinder::ERROR_INV_PARAMS, $cmd)));
+                    $this->output(['error' => $this->elFinder->error(elFinder::ERROR_INV_PARAMS, $cmd)]);
                 }
             } else {
-                $arg = isset($src[$name]) ? $src[$name] : '';
+                $arg = $src[$name] ?? '';
 
                 if (!is_array($arg) && $req !== '') {
-                    $arg = trim($arg);
+                    $arg = trim((string)$arg);
                 }
                 if ($req && $arg === '') {
-                    $this->output(array('error' => $this->elFinder->error(elFinder::ERROR_INV_PARAMS, $cmd)));
+                    $this->output(['error' => $this->elFinder->error(elFinder::ERROR_INV_PARAMS, $cmd)]);
                 }
                 $args[$name] = $arg;
             }
@@ -158,7 +165,7 @@ class elFinderConnector
 
         try {
             $this->output($this->elFinder->exec($cmd, $args));
-        } catch (elFinderAbortException $e) {
+        } catch (elFinderAbortException) {
             // connection aborted
             // unlock session data for multiple access
             $this->elFinder->getSession()->close();
@@ -225,7 +232,7 @@ class elFinderConnector
                 if (!empty($_SERVER['HTTP_RANGE'])) {
                     $size = $data['info']['size'];
                     $end = $size - 1;
-                    if (preg_match('/bytes=(\d*)-(\d*)(,?)/i', $_SERVER['HTTP_RANGE'], $matches)) {
+                    if (preg_match('/bytes=(\d*)-(\d*)(,?)/i', (string)$_SERVER['HTTP_RANGE'], $matches)) {
                         if (empty($matches[3])) {
                             if (empty($matches[1]) && $matches[1] !== '0') {
                                 $start = $size - $matches[2];
@@ -320,7 +327,7 @@ class elFinderConnector
             $magic_quotes_gpc = (version_compare(PHP_VERSION, '5.4', '<') && get_magic_quotes_gpc());
 
         if (is_array($args)) {
-            return array_map(array(& $this, 'input_filter'), $args);
+            return array_map([& $this, 'input_filter'], $args);
         }
         $res = str_replace("\0", '', $args);
         $magic_quotes_gpc && ($res = stripslashes($res));
@@ -353,7 +360,7 @@ class elFinderConnector
     public static function outputJson($data)
     {
         // send header
-        $header = isset($data['header']) ? $data['header'] : self::$contentType;
+        $header = $data['header'] ?? self::$contentType;
         self::sendHeader($header);
 
         unset($data['header']);
@@ -371,7 +378,7 @@ class elFinderConnector
         while (ob_get_level() && ob_end_clean()) {
         }
 
-        header('Content-Length: ' . strlen($out));
+        header('Content-Length: ' . strlen((string)$out));
 
         echo $out;
 

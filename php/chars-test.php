@@ -22,12 +22,12 @@ $origParts = explode('\\', $orig);
 array_shift($origParts);
 
 //                     й                 ё              Й               Ё              Ø         Å
-$patterns = array("\u0438\u0306", "\u0435\u0308", "\u0418\u0306", "\u0415\u0308", "\u00d8A", "\u030a");
-$replace = array("\u0439", "\u0451", "\u0419", "\u0401", "\u00d8", "\u00c5");
+$patterns = ["\u0438\u0306", "\u0435\u0308", "\u0418\u0306", "\u0415\u0308", "\u00d8A", "\u030a"];
+$replace = ["\u0439", "\u0451", "\u0419", "\u0401", "\u00d8", "\u00c5"];
 
 
 foreach (scandir($path) as $f) {
-    if ($f != '.' && $f != '..' && substr($f, 0, 1) != '.') {
+    if ($f != '.' && $f != '..' && !str_starts_with($f, '.')) {
 
         // echo mb_detect_encoding($f);
 
@@ -40,7 +40,7 @@ foreach (scandir($path) as $f) {
 }
 
 
-$parts = explode('\\', $name);
+$parts = explode('\\', (string)$name);
 array_shift($parts);
 
 

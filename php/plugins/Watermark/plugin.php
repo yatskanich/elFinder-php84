@@ -74,7 +74,7 @@ class elFinderPluginWatermark extends elFinderPlugin
 
     public function __construct($opts)
     {
-        $defaults = array(
+        $defaults = [
             'enable' => true,       // For control by volume driver
             'source' => 'logo.png', // Path to Water mark image
             'ratio' => 0.2,        // Ratio to original image (ratio > 0 and ratio <= 1)
@@ -92,7 +92,7 @@ class elFinderPluginWatermark extends elFinderPlugin
             'marginRight' => 0,          // Deprecated - marginX should be used
             'marginBottom' => 0,          // Deprecated - marginY should be used
             'disableWithContentSaveId' => true // Disable on URL upload with post data "contentSaveId"
-        );
+        ];
 
         $this->opts = array_merge($defaults, $opts);
 
@@ -114,7 +114,7 @@ class elFinderPluginWatermark extends elFinderPlugin
         $srcImgInfo = null;
         if (extension_loaded('fileinfo') && function_exists('mime_content_type')) {
             $mime = mime_content_type($src);
-            if (substr($mime, 0, 5) !== 'image') {
+            if (!str_starts_with($mime, 'image')) {
                 return false;
             }
         }
@@ -132,13 +132,13 @@ class elFinderPluginWatermark extends elFinderPlugin
         }
 
         // check target image type
-        $imgTypes = array(
+        $imgTypes = [
             IMAGETYPE_GIF => IMG_GIF,
             IMAGETYPE_JPEG => IMG_JPEG,
             IMAGETYPE_PNG => IMG_PNG,
             IMAGETYPE_BMP => IMG_WBMP,
             IMAGETYPE_WBMP => IMG_WBMP
-        );
+        ];
         if (!isset($imgTypes[$imageType]) || !($opts['targetType'] & $imgTypes[$imageType])) {
             return false;
         }
@@ -153,7 +153,7 @@ class elFinderPluginWatermark extends elFinderPlugin
         }
         // check water mark image
         if (!file_exists($opts['source'])) {
-            $opts['source'] = dirname(__FILE__) . "/" . $opts['source'];
+            $opts['source'] = __DIR__ . "/" . $opts['source'];
         }
         if (is_readable($opts['source'])) {
             $watermarkImgInfo = getimagesize($opts['source']);
@@ -206,13 +206,13 @@ class elFinderPluginWatermark extends elFinderPlugin
             $opts['ratio'] = null;
         }
 
-        $opts['position'] = strtoupper($opts['position']);
+        $opts['position'] = strtoupper((string)$opts['position']);
 
         // Set vertical position
-        if (strpos($opts['position'], 'T') !== false) {
+        if (str_contains($opts['position'], 'T')) {
             // Top
             $dest_x = $opts['marginX'];
-        } else if (strpos($opts['position'], 'M') !== false) {
+        } elseif (str_contains($opts['position'], 'M')) {
             // Middle
             $dest_x = ($srcImgInfo[0] - $watermarkImgInfo[0]) / 2;
         } else {
@@ -221,10 +221,10 @@ class elFinderPluginWatermark extends elFinderPlugin
         }
 
         // Set horizontal position
-        if (strpos($opts['position'], 'L') !== false) {
+        if (str_contains($opts['position'], 'L')) {
             // Left
             $dest_y = $opts['marginY'];
-        } else if (strpos($opts['position'], 'C') !== false) {
+        } elseif (str_contains($opts['position'], 'C')) {
             // Middle
             $dest_y = ($srcImgInfo[1] - $watermarkImgInfo[1]) / 2;
         } else {
@@ -234,13 +234,13 @@ class elFinderPluginWatermark extends elFinderPlugin
 
 
         // check interlace
-        $opts['interlace'] = ($opts['interlace'] & $imgTypes[$imageType]);
+        $opts['interlace'] &= $imgTypes[$imageType];
 
         // Repeated use of Imagick::compositeImage() may cause PHP to hang, so disable it
         //if (class_exists('Imagick', false)) {
         //    return $this->watermarkPrint_imagick($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $opts);
         //} else {
-            elFinder::expandMemoryForGD(array($watermarkImgInfo, $srcImgInfo));
+        elFinder::expandMemoryForGD([$watermarkImgInfo, $srcImgInfo]);
             return $this->watermarkPrint_gd($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $srcImgInfo, $opts);
         //}
     }

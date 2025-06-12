@@ -4,26 +4,26 @@ class elFinderEditorZohoOffice extends elFinderEditor
 {
     private static $curlTimeout = 20;
 
-    protected $allowed = array('init', 'save', 'chk');
+    protected $allowed = ['init', 'save', 'chk'];
 
-    protected $editor_settings = array(
-        'writer' => array(
+    protected $editor_settings = [
+        'writer' => [
             'unit' => 'mm',
             'view' => 'pageview'
-        ),
-        'sheet' => array(
+        ],
+        'sheet' => [
             'country' => 'US'
-        ),
-        'show' => array()
-    );
+        ],
+        'show' => []
+    ];
 
-    private $urls = array(
+    private $urls = [
         'writer' => 'https://api.office-integrator.com/writer/officeapi/v1/document',
         'sheet' => 'https://api.office-integrator.com/sheet/officeapi/v1/spreadsheet',
         'show' => 'https://api.office-integrator.com/show/officeapi/v1/presentation',
-    );
+    ];
 
-    private $srvs = array(
+    private $srvs = [
         'application/msword' => 'writer',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'writer',
         'application/pdf' => 'writer',
@@ -41,24 +41,24 @@ class elFinderEditorZohoOffice extends elFinderEditor
         'application/vnd.openxmlformats-officedocument.presentationml.slideshow' => 'show',
         'application/vnd.oasis.opendocument.presentation' => 'show',
         'application/vnd.sun.xml.impress' => 'show',
-    );
+    ];
 
     private $myName = '';
 
     protected function extentionNormrize($extention, $srvsName) {
         switch($srvsName) {
             case 'writer':
-                if (!in_array($extention, array('zdoc', 'docx', 'rtf', 'odt', 'html', 'txt'))) {
+                if (!in_array($extention, ['zdoc', 'docx', 'rtf', 'odt', 'html', 'txt'])) {
                     $extention = 'docx';
                 }
                 break;
             case 'sheet':
-                if (!in_array($extention, array('zsheet', 'xls', 'xlsx', 'ods', 'csv', 'tsv'))) {
+                if (!in_array($extention, ['zsheet', 'xls', 'xlsx', 'ods', 'csv', 'tsv'])) {
                     $extention = 'xlsx';
                 }
                 break;
             case 'show':
-                if (!in_array($extention, array('zslides', 'pptx', 'pps', 'ppsx', 'odp', 'sxi'))) {
+                if (!in_array($extention, ['zslides', 'pptx', 'pps', 'ppsx', 'odp', 'sxi'])) {
                     $extention = 'pptx';
                 }
                 break;
@@ -70,9 +70,10 @@ class elFinderEditorZohoOffice extends elFinderEditor
     public function __construct($elfinder, $args)
     {
         parent::__construct($elfinder, $args);
-        $this->myName = preg_replace('/^elFinderEditor/i', '', get_class($this));
+        $this->myName = preg_replace('/^elFinderEditor/i', '', static::class);
     }
 
+    #[\Override]
     public function enabled()
     {
         return defined('ELFINDER_ZOHO_OFFICE_APIKEY') && ELFINDER_ZOHO_OFFICE_APIKEY && function_exists('curl_init');
@@ -81,7 +82,7 @@ class elFinderEditorZohoOffice extends elFinderEditor
     public function init()
     {
         if (!defined('ELFINDER_ZOHO_OFFICE_APIKEY') || !function_exists('curl_init')) {
-            return array('error', array(elFinder::ERROR_CONF, '`ELFINDER_ZOHO_OFFICE_APIKEY` or curl extension'));
+            return ['error', [elFinder::ERROR_CONF, '`ELFINDER_ZOHO_OFFICE_APIKEY` or curl extension']];
         }
         if (!empty($this->args['target'])) {
             $fp = $cfile = null;
@@ -93,7 +94,16 @@ class elFinderEditorZohoOffice extends elFinderEditor
                 $save = false;
                 $ch = curl_init();
                 $conUrl = elFinder::getConnectorUrl();
-                curl_setopt($ch, CURLOPT_URL, $conUrl . (strpos($conUrl, '?') !== false? '&' : '?') . 'cmd=editor&name=' . $this->myName . '&method=chk&args[target]=' . rawurlencode($hash) . $cdata);
+                curl_setopt(
+                    $ch,
+                    CURLOPT_URL,
+                    $conUrl . (str_contains(
+                        $conUrl,
+                        '?'
+                    ) ? '&' : '?') . 'cmd=editor&name=' . $this->myName . '&method=chk&args[target]=' . rawurlencode(
+                        (string)$hash
+                    ) . $cdata
+                );
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 if ($cookie) {
                     curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie);
@@ -128,29 +138,36 @@ class elFinderEditorZohoOffice extends elFinderEditor
                 $srvsName = $this->srvs[$file['mime']];
                 $format = $this->extentionNormrize($srcVol->getExtentionByMime($file['mime']), $srvsName);
                 if (!$format) {
-                    $format = substr($file['name'], strrpos($file['name'], '.') * -1);
+                    $format = substr((string)$file['name'], strrpos((string)$file['name'], '.') * -1);
                 }
                 $lang = $this->args['lang'];
                 if ($lang === 'jp') {
                     $lang = 'ja';
                 }
-                $data = array(
+                $data = [
                     'apikey' => ELFINDER_ZOHO_OFFICE_APIKEY,
-                    'callback_settings' => array(
+                    'callback_settings' => [
                         'save_format' => $format,
-                        'save_url_params' => array(
+                        'save_url_params' => [
                             'hash' => $hash
-                        )
-                    ),
+                        ]
+                    ],
                     'editor_settings' => $this->editor_settings[$srvsName],
-                    'document_info' => array(
-                        'document_name' => substr($file['name'], 0, strlen($file['name']) - strlen($format)- 1)
-                    )
-                );
+                    'document_info' => [
+                        'document_name' => substr(
+                            (string)$file['name'],
+                            0,
+                            strlen((string)$file['name']) - strlen((string)$format) - 1
+                        )
+                    ]
+                ];
                 $data['editor_settings']['language'] = $lang;
                 if ($save) {
                     $conUrl = elFinder::getConnectorUrl();
-                    $data['callback_settings']['save_url'] = $conUrl . (strpos($conUrl, '?') !== false? '&' : '?') . 'cmd=editor&name=' . $this->myName . '&method=save' . $cdata;
+                    $data['callback_settings']['save_url'] = $conUrl . (str_contains(
+                            $conUrl,
+                            '?'
+                        ) ? '&' : '?') . 'cmd=editor&name=' . $this->myName . '&method=save' . $cdata;
                 }
                 foreach($data as $_k => $_v) {
                     if (is_array($_v)){
@@ -175,7 +192,7 @@ class elFinderEditorZohoOffice extends elFinderEditor
 
                 if ($res && $res = @json_decode($res, true)) {
                     if (!empty($res['document_url'])) {
-                        $ret = array('zohourl' => $res['document_url']);
+                        $ret = ['zohourl' => $res['document_url']];
                         if (!$save) {
                             $ret['warning'] = 'exportToSave';
                         }
@@ -186,12 +203,12 @@ class elFinderEditorZohoOffice extends elFinderEditor
                 }
 
                 if ($error) {
-                    return array('error' => is_string($error)? preg_split('/[\r\n]+/', $error) : 'Error code: ' . $error);
+                    return ['error' => is_string($error) ? preg_split('/[\r\n]+/', $error) : 'Error code: ' . $error];
                 }
             }
         }
 
-        return array('error' => array('errCmdParams', 'editor.' . $this->myName . '.init'));
+        return ['error' => ['errCmdParams', 'editor.' . $this->myName . '.init']];
     }
 
     public function save()
@@ -202,12 +219,12 @@ class elFinderEditorZohoOffice extends elFinderEditor
             if ($volume = $this->elfinder->getVolume($hash)) {
                 if ($content = file_get_contents($_FILES['content']['tmp_name'])) {
                     if ($volume->putContents($hash, $content)) {
-                        return array('raw' => true, 'error' => '', 'header' => 'HTTP/1.1 200 OK');
+                        return ['raw' => true, 'error' => '', 'header' => 'HTTP/1.1 200 OK'];
                     }
                 }
             }
         }
-        return array('raw' => true, 'error' => '', 'header' => 'HTTP/1.1 500 Internal Server Error');
+        return ['raw' => true, 'error' => '', 'header' => 'HTTP/1.1 500 Internal Server Error'];
     }
 
     public function chk()
@@ -220,6 +237,6 @@ class elFinderEditorZohoOffice extends elFinderEditor
                 $res = (bool)$file['write'];
             }
         }
-        return array('cansave' => $res);
+        return ['cansave' => $res];
     }
 }

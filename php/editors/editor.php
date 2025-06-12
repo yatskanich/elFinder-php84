@@ -12,21 +12,7 @@ class elFinderEditor
      *
      * @var array
      */
-    protected $allowed = array();
-
-    /**
-     * elFinder instance
-     *
-     * @var object elFinder instance
-     */
-    protected $elfinder;
-
-    /**
-     * Arguments
-     *
-     * @var array argValues
-     */
-    protected $args;
+    protected $allowed = [];
 
     /**
      * Constructor.
@@ -34,10 +20,17 @@ class elFinderEditor
      * @param object $elfinder
      * @param array  $args
      */
-    public function __construct($elfinder, $args)
+    public function __construct(
+        /**
+         * elFinder instance
+         */
+        protected $elfinder,
+        /**
+         * Arguments
+         */
+        protected $args
+    )
     {
-        $this->elfinder = $elfinder;
-        $this->args = $args;
     }
 
     /**
@@ -74,6 +67,6 @@ class elFinderEditor
      */
     public function argValue($key, $empty = '')
     {
-        return isset($this->args[$key]) ? $this->args[$key] : $empty;
+        return $this->args[$key] ?? $empty;
     }
 }

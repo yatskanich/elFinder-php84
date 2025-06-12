@@ -1,10 +1,10 @@
 <?php
 
-define('ELFINDER_PHP_ROOT_PATH', dirname(__FILE__));
+define('ELFINDER_PHP_ROOT_PATH', __DIR__);
 
 function elFinderAutoloader($name)
 {
-    $map = array(
+    $map = [
         'elFinder' => 'elFinder.class.php',
         'elFinderConnector' => 'elFinderConnector.class.php',
         'elFinderEditor' => 'editors/editor.php',
@@ -28,20 +28,20 @@ function elFinderAutoloader($name)
         'elFinderVolumeMySQL' => 'elFinderVolumeMySQL.class.php',
         'elFinderVolumeSFTPphpseclib' => 'elFinderVolumeSFTPphpseclib.class.php',
         'elFinderVolumeTrash' => 'elFinderVolumeTrash.class.php',
-    );
+    ];
     if (isset($map[$name])) {
         return include_once(ELFINDER_PHP_ROOT_PATH . '/' . $map[$name]);
     }
-    $prefix = substr($name, 0, 14);
-    if (substr($prefix, 0, 8) === 'elFinder') {
+    $prefix = substr((string)$name, 0, 14);
+    if (str_starts_with($prefix, 'elFinder')) {
         if ($prefix === 'elFinderVolume') {
             $file = ELFINDER_PHP_ROOT_PATH . '/' . $name . '.class.php';
             return (is_file($file) && include_once($file));
         } else if ($prefix === 'elFinderPlugin') {
-            $file = ELFINDER_PHP_ROOT_PATH . '/plugins/' . substr($name, 14) . '/plugin.php';
+            $file = ELFINDER_PHP_ROOT_PATH . '/plugins/' . substr((string)$name, 14) . '/plugin.php';
             return (is_file($file) && include_once($file));
         } else if ($prefix === 'elFinderEditor') {
-            $file = ELFINDER_PHP_ROOT_PATH . '/editors/' . substr($name, 14) . '/editor.php';
+            $file = ELFINDER_PHP_ROOT_PATH . '/editors/' . substr((string)$name, 14) . '/editor.php';
             return (is_file($file) && include_once($file));
         }
     }

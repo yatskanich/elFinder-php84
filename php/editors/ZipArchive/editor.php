@@ -2,6 +2,7 @@
 
 class elFinderEditorZipArchive extends elFinderEditor
 {
+    #[\Override]
     public function enabled()
     {
         return (!defined('ELFINDER_DISABLE_ZIPEDITOR') || !ELFINDER_DISABLE_ZIPEDITOR) &&

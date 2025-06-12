@@ -6,18 +6,18 @@
  */
 class elFinderPluginWinRemoveTailDots extends elFinderPlugin
 {
-    private $replaced = array();
-    private $keyMap = array(
+    private $replaced = [];
+    private $keyMap = [
         'ls' => 'intersect',
         'upload' => 'renames',
-        'mkdir' => array('name', 'dirs')
-    );
+        'mkdir' => ['name', 'dirs']
+    ];
 
     public function __construct($opts)
     {
-        $defaults = array(
+        $defaults = [
             'enable' => false,  // For control by volume driver
-        );
+        ];
 
         $this->opts = array_merge($defaults, $opts);
     }
@@ -28,13 +28,13 @@ class elFinderPluginWinRemoveTailDots extends elFinderPlugin
         if (!$opts['enable']) {
             return false;
         }
-        $this->replaced[$cmd] = array();
-        $key = (isset($this->keyMap[$cmd])) ? $this->keyMap[$cmd] : 'name';
+        $this->replaced[$cmd] = [];
+        $key = $this->keyMap[$cmd] ?? 'name';
 
         if (is_array($key)) {
             $keys = $key;
         } else {
-            $keys = array($key);
+            $keys = [$key];
         }
         foreach ($keys as $key) {
             if (isset($args[$key])) {
@@ -42,13 +42,13 @@ class elFinderPluginWinRemoveTailDots extends elFinderPlugin
                     foreach ($args[$key] as $i => $name) {
                         if ($cmd === 'mkdir' && $key === 'dirs') {
                             // $name need '/' as prefix see #2607
-                            $name = '/' . ltrim($name, '/');
+                            $name = '/' . ltrim((string)$name, '/');
                             $_names = explode('/', $name);
-                            $_res = array();
+                            $_res = [];
                             foreach ($_names as $_name) {
                                 $_res[] = $this->normalize($_name, $opts);
                             }
-                            $this->replaced[$cmd][$name] = $args[$key][$i] = join('/', $_res);
+                            $this->replaced[$cmd][$name] = $args[$key][$i] = implode('/', $_res);
                         } else {
                             $this->replaced[$cmd][$name] = $args[$key][$i] = $this->normalize($name, $opts);
                         }
@@ -62,8 +62,8 @@ class elFinderPluginWinRemoveTailDots extends elFinderPlugin
         if ($cmd === 'ls' || $cmd === 'mkdir') {
             if (!empty($this->replaced[$cmd])) {
                 // un-regist for legacy settings
-                $elfinder->unbind($cmd, array($this, 'cmdPostprocess'));
-                $elfinder->bind($cmd, array($this, 'cmdPostprocess'));
+                $elfinder->unbind($cmd, $this->cmdPostprocess(...));
+                $elfinder->bind($cmd, $this->cmdPostprocess(...));
             }
         }
         return true;
@@ -108,7 +108,7 @@ class elFinderPluginWinRemoveTailDots extends elFinderPlugin
 
     protected function normalize($str, $opts)
     {
-        $str = rtrim($str, '.');
+        $str = rtrim((string)$str, '.');
         return $str;
     }
 } // END class elFinderPluginWinRemoveTailDots

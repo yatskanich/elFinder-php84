@@ -29,7 +29,7 @@ class elFinderVolumeGroup extends elFinderVolumeDriver
         $this->options['dirUrlOwn'] = true;
         $this->options['syncMinMs'] = 0;
         $this->options['tmbPath'] = '';
-        $this->options['disabled'] = array(
+        $this->options['disabled'] = [
             'archive',
             'copy',
             'cut',
@@ -44,7 +44,7 @@ class elFinderVolumeGroup extends elFinderVolumeDriver
             'resize',
             'rm',
             'upload'
-        );
+        ];
     }
 
     /*********************************************************************/
@@ -127,7 +127,7 @@ class elFinderVolumeGroup extends elFinderVolumeDriver
     protected function _stat($path)
     {
         if ($path === '/') {
-            return array(
+            return [
                 'size' => 0,
                 'ts' => 0,
                 'mime' => 'directory',
@@ -136,7 +136,7 @@ class elFinderVolumeGroup extends elFinderVolumeDriver
                 'locked' => true,
                 'hidden' => false,
                 'dirs' => 0
-            );
+            ];
         }
         return false;
     }
@@ -171,7 +171,7 @@ class elFinderVolumeGroup extends elFinderVolumeDriver
      **/
     protected function _scandir($path)
     {
-        return array();
+        return [];
     }
 
     /**
