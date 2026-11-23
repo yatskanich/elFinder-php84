@@ -325,7 +325,6 @@ class elFinderLibGdBmp
             for ($i = 0; $i < $colors; ++$i) {
                 $buf = fread($stream, $palette_size);
                 if ($buf === false) {
-                    imagedestroy($img);
                     return false;
                 }
                 extract(unpack("Cb/Cg/Cr/Cx", $buf . "\x00"));
@@ -349,19 +348,16 @@ class elFinderLibGdBmp
                     //もし描写先が範囲外になっている場合デコード処理がおかしくなっているので抜ける
                     //変なデータが渡されたとしても最悪なケースで255回程度の無駄なので目を瞑る
                     if ($x < -1 || $x > $width || $y < -1 || $y > $height) {
-                        imagedestroy($img);
                         return false;
                     }
                     $buf = fread($stream, 1);
                     if ($buf === false) {
-                        imagedestroy($img);
                         return false;
                     }
                     switch ($buf) {
                         case "\x00":
                             $buf = fread($stream, 1);
                             if ($buf === false) {
-                                imagedestroy($img);
                                 return false;
                             }
                             switch ($buf) {
@@ -376,7 +372,6 @@ class elFinderLibGdBmp
                                 case "\x02": //MOV
                                     $buf = fread($stream, 2);
                                     if ($buf === false) {
-                                        imagedestroy($img);
                                         return false;
                                     }
                                     [, $xx, $yy] = unpack("C2", $buf);
@@ -388,7 +383,6 @@ class elFinderLibGdBmp
                                     $bytes = ($pixels >> $qrt_mod2) + ($pixels & $qrt_mod2);
                                     $buf = fread($stream, ($bytes + 1) & ~1);
                                     if ($buf === false) {
-                                        imagedestroy($img);
                                         return false;
                                     }
                                     for ($i = 0, $pos = 0; $i < $pixels; ++$i, ++$x, $pos += $bit_count) {
@@ -402,7 +396,6 @@ class elFinderLibGdBmp
                         default:
                             $buf2 = fread($stream, 1);
                             if ($buf2 === false) {
-                                imagedestroy($img);
                                 return false;
                             }
                             [, $size, $c] = unpack("C2", $buf . $buf2);
@@ -417,7 +410,6 @@ class elFinderLibGdBmp
                 for ($line = 0; $line < $lines; ++$line, $y += $line_step) {
                     $buf = fread($stream, $line_bytes);
                     if ($buf === false) {
-                        imagedestroy($img);
                         return false;
                     }
 
@@ -448,7 +440,6 @@ class elFinderLibGdBmp
             for ($line = 0; $line < $lines; ++$line, $y += $line_step) {
                 $buf = fread($stream, $line_bytes);
                 if ($buf === false) {
-                    imagedestroy($img);
                     return false;
                 }
 

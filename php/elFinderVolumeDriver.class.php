@@ -5958,8 +5958,6 @@ abstract class elFinderVolumeDriver
 
                     $result = $this->gdImage($tmp, $path, $destformat, $s['mime'], $jpgQuality);
 
-                    imagedestroy($img);
-                    imagedestroy($tmp);
 
                     return $result ? $path : false;
 
@@ -6088,8 +6086,6 @@ abstract class elFinderVolumeDriver
 
                     $result = $this->gdImage($tmp, $path, $destformat, $s['mime'], $jpgQuality);
 
-                    imagedestroy($img);
-                    imagedestroy($tmp);
 
                     return $result ? $path : false;
 
@@ -6224,8 +6220,6 @@ abstract class elFinderVolumeDriver
 
                     $result = $this->gdImage($tmp, $path, $destformat, $s['mime'], $jpgQuality);
 
-                    imagedestroy($img);
-                    imagedestroy($tmp);
 
                     return $result ? $path : false;
                 }
@@ -6366,7 +6360,6 @@ abstract class elFinderVolumeDriver
                         imagefill($newImg, 0, 0, $bgNum);
                         imagecolortransparent($newImg, $bgNum);
                         imagecopy($newImg, $img, 0, 0, 0, 0, $w, $h);
-                        imagedestroy($img);
                         $img = $newImg;
                         $newImg = null;
                     }
@@ -6385,8 +6378,6 @@ abstract class elFinderVolumeDriver
 
                 $result = $this->gdImage($tmp, $path, $destformat, $s['mime'], $jpgQuality);
 
-                imageDestroy($img);
-                imageDestroy($tmp);
 
                 return $result ? $path : false;
 

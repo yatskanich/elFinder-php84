@@ -2788,7 +2788,6 @@ class elFinder
             }
             return $this->curl_get_contents($new_url, $timeout, $redirect_max - 1, $ua, $outfp, $info);
         }
-        curl_close($ch);
         return $outfp ?: $result;
     }
 
@@ -4527,7 +4526,7 @@ var go = function() {
     protected function utime()
     {
         $time = explode(" ", microtime());
-        return (double)$time[1] + (double)$time[0];
+        return (float)$time[1] + (float)$time[0];
     }
 
     /**
@@ -5275,7 +5274,6 @@ var go = function() {
             }
         }
 
-        curl_close($curl);
 
         return $result;
     }

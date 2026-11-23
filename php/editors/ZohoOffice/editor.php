@@ -110,7 +110,6 @@ class elFinderEditorZohoOffice extends elFinderEditor
                     curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie);
                 }
                 $res = curl_exec($ch);
-                curl_close($ch);
                 if ($res) {
                     if ($data = json_decode($res, true)) {
                         $save = !empty($data['cansave']);
@@ -186,7 +185,6 @@ class elFinderEditorZohoOffice extends elFinderEditor
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
                 $res = curl_exec($ch);
                 $error = curl_error($ch);
-                curl_close($ch);
 
                 $fp && fclose($fp);
 

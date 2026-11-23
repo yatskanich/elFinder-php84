@@ -343,7 +343,6 @@ class elFinderPluginWatermark extends elFinderPlugin
                 imagealphablending($tmpImg, false);
                 imagesavealpha($tmpImg, true);
                 imagecopyresampled($tmpImg, $oWatermarkImg, 0, 0, 0, 0, $watermarkImgInfo[0], $watermarkImgInfo[1], imagesx($oWatermarkImg), imagesy($oWatermarkImg));
-                imageDestroy($oWatermarkImg);
                 $oWatermarkImg = $tmpImg;
                 $tmpImg = null;
             }
@@ -424,8 +423,6 @@ class elFinderPluginWatermark extends elFinderPlugin
                 break;
         }
 
-        imageDestroy($oSrcImg);
-        imageDestroy($oWatermarkImg);
 
         return true;
     }
